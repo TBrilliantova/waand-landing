@@ -187,6 +187,9 @@
       object-fit: contain;
     }
 
+    /* Mobile-only solution header — hidden by default, shown in @media */
+    .ps-solution-header-mobile { display: none; }
+
     /* — Cards row — */
     .ps-cards-row {
       display: grid;
@@ -567,9 +570,16 @@
         gap: 36px;
         padding: 48px 20px 28px;
       }
-      .ps-col.right { text-align: left; }
+      .ps-col.right { display: none; } /* solution header moves below orange cards on mobile */
       .ps-mascot { display: none; }
       .ps-label { font-size: 32px; }
+      .ps-spacer { display: none; } /* remove empty spacer column */
+      .ps-solution-header-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 20px;
+      }
 
       .ps-cards-row {
         grid-template-columns: 1fr;
@@ -695,14 +705,20 @@
         <div class="sticky problem">Quality issues surface late — in review, or worse, in dev</div>
         <div class="sticky problem">Handoff notes get written at 11pm, and it shows</div>
       </div>
-      <!-- Spacer -->
-      <div></div>
-      <!-- Solution cards -->
-      <div class="sticky-grid">
-        <div class="sticky solution">Blank-page moments happen — conjure structured directions before you open Figma</div>
-        <div class="sticky solution">Second-guessing takes too long — let Brainstorm cast a wide net and land on a strong pick</div>
-        <div class="sticky solution">Late quality issues are expensive, surface them early, while changes are still easy</div>
-        <div class="sticky solution">Rushed specs hurt everyone — ship a complete handoff pack, no last-minute scrambling</div>
+      <!-- Spacer (hidden on mobile) -->
+      <div class="ps-spacer"></div>
+      <!-- Solution cards + mobile-only solution header -->
+      <div class="ps-solution-col">
+        <div class="ps-solution-header-mobile">
+          <h2 class="ps-label">The solution</h2>
+          <p class="ps-sublabel">Waand is your AI team for shippable product design</p>
+        </div>
+        <div class="sticky-grid">
+          <div class="sticky solution">Blank-page moments happen — conjure structured directions before you open Figma</div>
+          <div class="sticky solution">Second-guessing takes too long — let Brainstorm cast a wide net and land on a strong pick</div>
+          <div class="sticky solution">Late quality issues are expensive, surface them early, while changes are still easy</div>
+          <div class="sticky solution">Rushed specs hurt everyone — ship a complete handoff pack, no last-minute scrambling</div>
+        </div>
       </div>
     </div>
   </section>
@@ -1054,6 +1070,15 @@ onInView(document.querySelector('.ps-cards-row'), target => {
     target.querySelectorAll('.sticky'),
     { opacity: 1, y: 0 },
     { delay: stagger(0.06), duration: 0.45, easing: ease }
+  )
+})
+
+// Mobile-only solution header (hidden on desktop but harmless to animate)
+onInView(document.querySelector('.ps-solution-col'), target => {
+  animate(
+    target.querySelectorAll('.ps-label, .ps-sublabel'),
+    { opacity: 1, y: 0 },
+    { delay: stagger(0.1), duration: 0.55, easing: ease }
   )
 })
 
