@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>waand — Your AI design team, ready to ship</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── TOKENS ── */
+    :root {
+      --violet:         #6047c6;
+      --violet-mid:     #7157d9;
+      --black:          #1e1e1e;
+      --white:          #ffffff;
+      --bg:             #eeeeee;
+      --stroke:         #cccccc;
+      --problem-bg:     #efd4b3;
+      --solution-bg:    #bdefb3;
+      --card-bg:        #fafafa;
+      --card-stroke:    #c7c4c4;
+      --placeholder:    #868686;
+    }
+
+    /* ── BASE ── */
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--black);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── GRID BACKGROUND ── */
+    .page-wrap {
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(var(--stroke) 0.5px, transparent 0.5px),
+        linear-gradient(90deg, var(--stroke) 0.5px, transparent 0.5px);
+      background-size: 240px 240px;
+      overflow-x: clip; /* clip without creating scroll container — preserves sticky positioning */
+    }
+
+    /* ═══════════════════════════════
+       HEADER
+    ═══════════════════════════════ */
+    .header-outer {
+      padding: 48px 80px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      will-change: transform;
+    }
+    .header-inner {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      width: 108px;
+      height: 24px;
+      display: block;
+    }
+    .btn-outline {
+      border: 1px solid var(--violet);
+      border-radius: 14px;
+      padding: 4px 16px;
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--violet);
+      background: var(--white);
+      cursor: pointer;
+      line-height: 32px;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-outline:hover { background: var(--violet); color: var(--white); }
+
+    .btn-solid {
+      background: var(--violet);
+      border: none;
+      border-radius: 14px;
+      padding: 10px 20px;
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--white);
+      cursor: pointer;
+      line-height: 32px;
+      text-decoration: none;
+      display: inline-block;
+      transition: opacity 0.15s;
+    }
+    .btn-solid:hover { opacity: 0.88; }
+
+    /* ═══════════════════════════════
+       HERO
+    ═══════════════════════════════ */
+    .hero {
+      padding: 104px 80px 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 64px;
+    }
+    .hero-img {
+      width: 640px;
+      height: 342px;
+      object-fit: cover;
+      border-radius: 16px;
+      display: block;
+    }
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+      width: 100%;
+      align-items: flex-start;
+    }
+    .hero-copy { display: flex; flex-direction: column; gap: 4px; }
+    .hero-title {
+      font-size: 72px;
+      font-weight: 500;
+      line-height: 1.1;
+      color: var(--black);
+    }
+    .hero-desc {
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 32px;
+      color: var(--black);
+    }
+
+    /* ═══════════════════════════════
+       PROBLEM / SOLUTION
+    ═══════════════════════════════ */
+    .ps-section {
+    }
+
+    /* — Headers row — */
+    .ps-headers {
+      display: flex;
+      gap: 101px;
+      padding: 80px 80px 56px;
+      position: relative;
+      align-items: flex-start;
+    }
+    .ps-col { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .ps-col.right { text-align: right; }
+    .ps-label {
+      font-size: 48px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .ps-sublabel {
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 32px;
+    }
+    /* Left mascot: absolute in .ps-headers, anchored to fixed 80px padding */
+    .ps-mascot.left {
+      position: absolute;
+      top: 51.8px;
+      left: 61px;
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+    }
+    /* Right mascot: lives inside .ps-label-wrap, anchored to the "T" */
+    .ps-label-wrap {
+      position: relative;
+      align-self: flex-end; /* shrink-wrap + right-align in the flex column */
+    }
+    .ps-mascot.right {
+      position: absolute;
+      left: -19px;  /* same x-offset as left mascot relative to its T */
+      top: -28px;   /* adjusted so mascot sits 35px above the T glyph */
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+    }
+
+    /* — Cards row — */
+    .ps-cards-row {
+      display: grid;
+      grid-template-columns: 520px 1fr 520px;
+      padding: 0 80px 80px;
+    }
+    .sticky-grid {
+      display: grid;
+      grid-template-columns: 240px 240px;
+      grid-template-rows: 240px 240px;
+      gap: 26px 40px;
+    }
+    .sticky {
+      padding: 20px;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 26px;
+      border-radius: 3px;
+      box-shadow: 0 2px 20px 0 rgba(36, 36, 36, 0.12);
+    }
+    .sticky.problem  { background: var(--problem-bg); }
+    .sticky.solution { background: var(--solution-bg); }
+
+    /* ═══════════════════════════════
+       FEATURES
+    ═══════════════════════════════ */
+    .features {
+      padding: 120px 80px 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 56px;
+    }
+    .features-title {
+      font-size: 48px;
+      font-weight: 500;
+      line-height: 1.5;
+      text-align: center;
+    }
+    .features-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 38px;
+      width: 100%;
+      max-width: 1238px;
+    }
+    .features-row {
+      display: flex;
+      gap: 38px;
+    }
+    .fcard {
+      flex: 1;
+      background: var(--white);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .fcard-head {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--card-stroke);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      height: 64px;
+    }
+    .fcard-icon {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .fcard-title {
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .fcard-body {
+      padding: 24px 20px;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 32px;
+    }
+    .fcard-body p { margin-bottom: 0; }
+    .fcard-body ul { margin: 0; padding-left: 20px; }
+    .fcard-body li { margin: 0; }
+
+    /* ═══════════════════════════════
+       HOW IT WORKS
+    ═══════════════════════════════ */
+    .hiw {
+    }
+    .hiw-copy {
+      padding: 80px 80px 56px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sec-title {
+      font-size: 48px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .sec-desc {
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 32px;
+    }
+
+    .hiw-steps {
+      position: relative;
+      padding: 0 0 56px;
+      overflow: visible;
+    }
+    /* Mascot anchored to card 1 left edge (matches row padding-left: 80px) */
+    .hiw-mascot {
+      position: absolute;
+      top: -2px;
+      left: 80px;
+      width: 136px;
+      height: 136px;
+      object-fit: contain;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* Connector line images — 331×47px each */
+    .hiw-connector {
+      position: absolute;
+      width: 331px;
+      height: 47px;
+      pointer-events: none;
+      z-index: 1;
+    }
+    /* Connectors live inside .hiw-steps-row (position:relative), left is
+       relative to row left edge (= section left since row has no x offset).
+       Below: bottom:-47px snaps to card bottom regardless of card height.
+       Above: top:41px = card top (88px) - SVG height (47px).              */
+    .hiw-conn-below-1 { left: 243px; bottom: -47px; }
+    .hiw-conn-above   { left: 555px; top: 41px; }
+    .hiw-conn-below-2 { left: 868px; bottom: -47px; }
+
+    /* Cards row — flex:1 fills available width; 80px padding aligns with copy */
+    .hiw-steps-row {
+      display: flex;
+      position: relative;
+      z-index: 2;
+      padding: 88px 80px 0;
+    }
+    .step-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-stroke);
+      border-radius: 14px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      min-width: 0;
+      position: relative;
+    }
+    .step-card + .step-card { margin-left: -16px; }
+    /* Each next card overlaps the previous one.
+       nth-of-type counts divs only (connectors are imgs), so indices 1-4 are correct. */
+    .step-card:nth-of-type(1) { z-index: 1; }
+    .step-card:nth-of-type(2) { z-index: 2; }
+    .step-card:nth-of-type(3) { z-index: 3; }
+    /* Card 4 needs overflow:visible so rocket can extend beyond its edge */
+    .step-card:nth-of-type(4) { z-index: 4; overflow: visible; }
+    .step-card.accent { border-color: var(--violet-mid); }
+    .step-title {
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 32px;
+      letter-spacing: -0.2px;
+      color: rgba(0,0,0,0.85);
+    }
+    .step-desc {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 28px;
+      letter-spacing: -0.18px;
+      color: rgba(0,0,0,0.65);
+    }
+    /* Rocket is inside card 4, centered on the bottom-right corner */
+    .hiw-rocket {
+      position: absolute;
+      right: -40px;
+      bottom: -40px;
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* ═══════════════════════════════
+       FAQ
+    ═══════════════════════════════ */
+    .faq {
+      border-bottom: 1px solid var(--stroke);
+      padding: 80px 80px 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 56px;
+    }
+    .faq-title {
+      font-size: 48px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .faq-list {
+      width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .faq-item {
+      background: var(--card-bg);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .faq-q {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 8px 20px;
+      min-height: 64px;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 1.6;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .faq-q:hover { background: rgba(0,0,0,0.02); }
+    .faq-chevron {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      color: var(--violet);
+      transition: transform 0.22s ease;
+    }
+    .faq-item.open .faq-chevron { transform: rotate(180deg); }
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      padding: 0 20px;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 32px;
+      color: rgba(30,30,30,0.85);
+    }
+    .faq-item.open .faq-a {
+      max-height: 300px;
+      padding: 4px 20px 24px;
+    }
+
+    /* ═══════════════════════════════
+       CTA + FOOTER
+    ═══════════════════════════════ */
+    .cta-footer {
+      background: linear-gradient(to bottom, #eeeeee 0%, #e5e3ed 100%);
+    }
+    .cta {
+      padding: 144px 80px 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 56px;
+      position: relative;
+    }
+    .cta-copy {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+    }
+    .cta-title {
+      font-size: 56px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+    .cta-desc {
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 32px;
+    }
+    /* Wrap form + mascot so mascot stays anchored to button's right edge */
+    .cta-form-wrap {
+      position: relative;
+    }
+    .cta-form {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+    .email-input {
+      width: 514px;
+      height: 56px;
+      background: var(--white);
+      border: none;
+      border-radius: 14px;
+      padding: 0 24px;
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--black);
+      outline: none;
+    }
+    .email-input::placeholder { color: var(--placeholder); }
+    .btn-cta {
+      background: var(--violet);
+      border: none;
+      border-radius: 14px;
+      padding: 0 20px;
+      height: 56px;
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--white);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+    .btn-cta:hover { opacity: 0.88; }
+    /* Mascot sits above the button's right corner, anchored to .cta-form-wrap.
+       bottom:24px → mascot bottom is 24px above form bottom = mascot feet touch button top area.
+       right:-30px → mascot extends slightly past the button's right edge. */
+    .cta-mascot {
+      position: absolute;
+      right: -30px;
+      bottom: 24px;
+      width: 114px;
+      height: 114px;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .footer {
+      padding: 0 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--stroke);
+    }
+    .footer-logo { width: 108px; height: 24px; }
+    .footer-links {
+      display: flex;
+      gap: 40px;
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 32px;
+    }
+    .footer-links a { color: var(--black); text-decoration: none; }
+    .footer-links a:hover { text-decoration: underline; }
+
+    /* ═══════════════════════════════
+       RESPONSIVE — MOBILE
+    ═══════════════════════════════ */
+    @media (max-width: 900px) {
+      .header-outer { padding: 16px 20px 0; }
+      .btn-outline { font-size: 14px; padding: 4px 10px; }
+
+      .hero { padding: 48px 20px 40px; gap: 32px; }
+      .hero-img { width: 100%; height: auto; aspect-ratio: 640 / 342; border-radius: 12px; }
+      .hero-title { font-size: 36px; line-height: 1.15; }
+      .hero-desc { font-size: 16px; }
+      .hero-content { gap: 32px; }
+      .btn-solid { font-size: 18px; padding: 10px 16px; }
+
+      .ps-headers {
+        flex-direction: column;
+        gap: 36px;
+        padding: 48px 20px 28px;
+      }
+      .ps-col.right { text-align: left; }
+      .ps-mascot { display: none; }
+      .ps-label { font-size: 32px; }
+
+      .ps-cards-row {
+        grid-template-columns: 1fr;
+        padding: 0 20px 48px;
+        gap: 32px;
+      }
+      .sticky-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 16px;
+      }
+      .sticky { min-height: 140px; height: auto; }
+
+      .features { padding: 60px 20px 40px; gap: 32px; }
+      .features-title { font-size: 32px; }
+      .features-row { flex-direction: column; }
+      .fcard-title { font-size: 22px; }
+
+      .hiw-copy { padding: 48px 20px 32px; }
+      .sec-title { font-size: 32px; }
+      .sec-desc { font-size: 16px; }
+      .hiw-steps { padding: 0 20px 40px; }
+      .hiw-mascot { display: none; }
+      .hiw-connector { display: none; }
+      .hiw-rocket { display: none !important; }
+      .hiw-steps-row { flex-wrap: wrap; gap: 12px; padding: 0; }
+      .step-card { flex: 0 0 calc(50% - 6px); min-width: 0; margin-left: 0; overflow: hidden; }
+      .step-card + .step-card { margin-left: 0; }
+
+      .faq { padding: 60px 20px 80px; gap: 32px; }
+      .faq-title { font-size: 32px; }
+      .faq-list { width: 100%; }
+      .faq-q { font-size: 16px; min-height: auto; padding: 14px 16px; }
+      .faq-item.open .faq-a { padding: 4px 16px 20px; }
+
+      .cta { padding: 80px 20px 80px; gap: 36px; }
+      .cta-title { font-size: 36px; line-height: 1.25; }
+      .cta-desc { font-size: 16px; }
+      .cta-form { flex-direction: column; width: 100%; }
+      .email-input { width: 100%; }
+      .btn-cta { width: 100%; }
+      .cta-mascot { display: none; }
+
+      .footer {
+        padding: 16px 20px;
+        height: auto;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .footer-links { font-size: 14px; gap: 20px; }
+    }
+
+    @media (max-width: 480px) {
+      .hiw-steps-row { flex-direction: column; }
+      .step-card { flex: 0 0 100%; width: 100%; margin-left: 0; }
+      .sticky-grid { grid-template-columns: 1fr; }
+      .hero-title { font-size: 28px; }
+      .cta-title { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ MAIN (grid bg) ═══════════════════ -->
+<div class="page-wrap">
+
+  <!-- ── HEADER ── -->
+  <header class="header-outer">
+    <div class="header-inner">
+      <img
+        src="https://www.figma.com/api/mcp/asset/4208939c-44a9-4509-826b-07b90d09e33b"
+        alt="waand"
+        class="logo"
+      />
+      <a href="#waitlist" class="btn-outline">Join waitlist</a>
+    </div>
+  </header>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <img
+      src="https://www.figma.com/api/mcp/asset/9c2bc779-68aa-4a39-9e3a-4f8b3485258f"
+      alt="You're a designer, Harry!"
+      class="hero-img"
+    />
+    <div class="hero-content">
+      <div class="hero-copy">
+        <h1 class="hero-title">Your AI design team,&nbsp;ready to ship</h1>
+        <p class="hero-desc">Waand helps product designers craft better work, faster — from first spark to a dev-ready handoff pack</p>
+      </div>
+      <a href="#waitlist" class="btn-solid">Join waitlist</a>
+    </div>
+  </section>
+
+  <!-- ── PROBLEM / SOLUTION ── -->
+  <section class="ps-section">
+    <div class="ps-headers">
+      <img
+        src="https://www.figma.com/api/mcp/asset/297c8006-48b0-4754-8dca-d1e9001a51f3"
+        alt="" class="ps-mascot left"
+      />
+      <div class="ps-col">
+        <h2 class="ps-label">The problem</h2>
+        <p class="ps-sublabel">Design work usually breaks in the same places</p>
+      </div>
+      <div class="ps-col right">
+        <div class="ps-label-wrap">
+          <img
+            src="https://www.figma.com/api/mcp/asset/079b2474-a895-4e54-8885-2087ec21d0f3"
+            alt="" class="ps-mascot right"
+          />
+          <h2 class="ps-label">The solution</h2>
+        </div>
+        <p class="ps-sublabel">Waand is your AI team for shippable product design</p>
+      </div>
+    </div>
+
+    <div class="ps-cards-row">
+      <!-- Problem cards -->
+      <div class="sticky-grid">
+        <div class="sticky problem">You're the only one reviewing your own decisions</div>
+        <div class="sticky problem">Exploration takes time you don't have</div>
+        <div class="sticky problem">Quality issues surface late — in review, or worse, in dev</div>
+        <div class="sticky problem">Handoff notes get written at 11pm, and it shows</div>
+      </div>
+      <!-- Spacer -->
+      <div></div>
+      <!-- Solution cards -->
+      <div class="sticky-grid">
+        <div class="sticky solution">Blank-page moments happen — conjure structured directions before you open Figma</div>
+        <div class="sticky solution">Second-guessing takes too long — let Brainstorm cast a wide net and land on a strong pick</div>
+        <div class="sticky solution">Late quality issues are expensive, surface them early, while changes are still easy</div>
+        <div class="sticky solution">Rushed specs hurt everyone — ship a complete handoff pack, no last-minute scrambling</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FEATURES OVERVIEW ── -->
+  <section class="features">
+    <h2 class="features-title">Features overview</h2>
+    <div class="features-grid">
+
+      <div class="features-row">
+        <!-- Brainstorm -->
+        <div class="fcard">
+          <div class="fcard-head">
+            <img src="https://www.figma.com/api/mcp/asset/09b07e91-b4d1-4872-9792-4ccb81fc4601" alt="" class="fcard-icon" />
+            <h3 class="fcard-title">Brainstorm</h3>
+          </div>
+          <div class="fcard-body">
+            <p>Expands your thinking, challenges it, then picks a winner</p>
+            <ul>
+              <li>Explores beyond the obvious</li>
+              <li>Critiques each option honestly</li>
+              <li>Synthesizes one strong recommendation</li>
+              <li>Replaces guesswork with clarity</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Concepts -->
+        <div class="fcard">
+          <div class="fcard-head">
+            <img src="https://www.figma.com/api/mcp/asset/0309e803-1f24-467b-ab87-0777cead7895" alt="" class="fcard-icon" />
+            <h3 class="fcard-title">Concepts</h3>
+          </div>
+          <div class="fcard-body">
+            <p>Turns your brief into 3–5 structured design directions</p>
+            <ul>
+              <li>Generates multiple directions fast</li>
+              <li>Surfaces options you'd miss</li>
+              <li>Structured, not just vibes</li>
+              <li>Ready to discuss or iterate</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="features-row">
+        <!-- UX audit -->
+        <div class="fcard">
+          <div class="fcard-head">
+            <img src="https://www.figma.com/api/mcp/asset/70f1484a-9c0f-44c5-a418-4a2cd3dfa4c1" alt="" class="fcard-icon" />
+            <h3 class="fcard-title">UX audit</h3>
+          </div>
+          <div class="fcard-body">
+            <p>A standards-based check for consistency and accessibility</p>
+            <ul>
+              <li>Reviews across your full flow</li>
+              <li>Flags accessibility gaps clearly</li>
+              <li>Prioritizes fixes by impact</li>
+              <li>Actionable notes, not a lecture</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Handoff pack -->
+        <div class="fcard">
+          <div class="fcard-head">
+            <img src="https://www.figma.com/api/mcp/asset/fceacfe9-4ffc-4070-a135-3c90ad1941b3" alt="" class="fcard-icon" />
+            <h3 class="fcard-title">Handoff pack</h3>
+          </div>
+          <div class="fcard-body">
+            <p>Turns your design into specs developers can actually use</p>
+            <ul>
+              <li>Documents states and variants</li>
+              <li>Covers edge cases and empty states</li>
+              <li>Writes acceptance criteria per feature</li>
+              <li>Drops straight into docs or tickets</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── HOW IT WORKS ── -->
+  <section class="hiw">
+    <div class="hiw-copy">
+      <h2 class="sec-title">How it works</h2>
+      <p class="sec-desc">Four agents, one workflow. Here's how to cast them</p>
+    </div>
+
+    <div class="hiw-steps">
+
+      <!-- Wizard mascot: sits above card 1, overlapping its top edge -->
+      <img
+        src="https://www.figma.com/api/mcp/asset/29c3a14c-f5cb-45ab-9f36-29ad21bd0e82"
+        alt="" class="hiw-mascot"
+      />
+
+      <!-- Step cards + connectors (connectors inside row for relative positioning) -->
+      <div class="hiw-steps-row">
+        <!-- Connectors: absolute inside row; below uses bottom:-47px to track card bottom -->
+        <img src="connector-line-01.svg" alt="" class="hiw-connector hiw-conn-below-1" />
+        <img src="connector-line-02.svg" alt="" class="hiw-connector hiw-conn-above" />
+        <img src="connector-line-01.svg" alt="" class="hiw-connector hiw-conn-below-2" />
+        <div class="step-card">
+          <div class="step-title">Choose an agent</div>
+          <div class="step-desc">Choose what you need for this step</div>
+        </div>
+        <div class="step-card">
+          <div class="step-title">Drop in your brief</div>
+          <div class="step-desc">Text, Figma link, screenshots, and goal</div>
+        </div>
+        <div class="step-card">
+          <div class="step-title">Get a  result</div>
+          <div class="step-desc">Options, priorities, next steps</div>
+        </div>
+        <div class="step-card accent">
+          <div class="step-title">Ship and iterate</div>
+          <div class="step-desc">Ship it, iterate, run waand again.</div>
+          <!-- Rocket anchored to card 4's right corner, responsive with the card -->
+          <img
+            src="https://www.figma.com/api/mcp/asset/29d4fedb-35b2-41a2-a3ea-6c1c159ea0c8"
+            alt="" class="hiw-rocket"
+          />
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section class="faq">
+    <h2 class="faq-title">FAQ</h2>
+    <div class="faq-list">
+
+      <div class="faq-item open">
+        <div class="faq-q" role="button" tabindex="0" aria-expanded="true">
+          <span>Is this secure?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+        <div class="faq-a">
+          Your inputs are used to run the agents and nothing else. We don't train on your work or share it with third parties. If you have specific security requirements, reach out and we'll give you the details.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" role="button" tabindex="0" aria-expanded="false">
+          <span>What if it doesn't work for me?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+        <div class="faq-a">
+          We stand behind the work. If waand isn't the right fit after you've tried it, reach out — we'll figure out next steps together. No lock-in from the waitlist.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" role="button" tabindex="0" aria-expanded="false">
+          <span>How do I get started?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+        <div class="faq-a">
+          Join the waitlist above. When early access opens in March, we'll email you with everything you need. No installs or configuration required — waand runs in your browser.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" role="button" tabindex="0" aria-expanded="false">
+          <span>Does it work for complex, multi-flow products — not just single screens?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+        <div class="faq-a">
+          Yes. Each agent handles the full scope of your brief — multi-step flows, complex state logic, and system-wide design decisions. It's built for real products, not toy demos.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div><!-- /page-wrap -->
+
+<!-- ═══════════════════ CTA + FOOTER ═══════════════════ -->
+<div class="cta-footer">
+  <section class="cta" id="waitlist">
+    <div class="cta-copy">
+      <h2 class="cta-title">Get early access in March</h2>
+      <p class="cta-desc">Join the waitlist, and we'll email you when your waand is ready</p>
+    </div>
+    <div class="cta-form-wrap">
+      <form class="cta-form" onsubmit="handleCtaSubmit(event)">
+        <input
+          type="email"
+          class="email-input"
+          placeholder="Your email"
+          required
+          autocomplete="email"
+        />
+        <button type="submit" class="btn-cta">Join the waitlist</button>
+      </form>
+      <img
+        src="https://www.figma.com/api/mcp/asset/9c53cd12-d900-477f-9675-7d918217b5d3"
+        alt="" class="cta-mascot"
+      />
+    </div>
+  </section>
+
+  <footer class="footer">
+    <img
+      src="https://www.figma.com/api/mcp/asset/9e831769-d71e-45f6-8415-a025d86f08e3"
+      alt="waand"
+      class="footer-logo"
+    />
+    <nav class="footer-links">
+      <a href="#">Privacy policy</a>
+      <a href="#">Contact us</a>
+    </nav>
+  </footer>
+</div>
+
+<script>
+  /* ── FAQ accordion ── */
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      // Close all
+      document.querySelectorAll('.faq-item').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+      });
+      // Open clicked (if it was closed)
+      if (!isOpen) {
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+    btn.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
+    });
+  });
+
+  /* ── CTA form ── */
+  function handleCtaSubmit(e) {
+    e.preventDefault();
+    const input = e.target.querySelector('.email-input');
+    const btn   = e.target.querySelector('.btn-cta');
+    btn.textContent = 'You\'re on the list ✓';
+    btn.style.opacity = '0.7';
+    btn.disabled = true;
+    input.disabled = true;
+  }
+
+  /* ── Smooth scroll ── */
+  document.querySelectorAll('a[href="#waitlist"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.getElementById('waitlist').scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+
+<!-- ═══════════════════ MOTION ANIMATIONS ═══════════════════ -->
+<script type="module">
+import { animate, stagger } from "https://cdn.jsdelivr.net/npm/motion@latest/+esm"
+
+const ease = [0.25, 0, 0.3, 1]
+
+// ─── 1. HEADER: hide on scroll down, reveal on scroll up ───────────────────
+const headerEl = document.querySelector('.header-outer')
+let prevScrollY = window.scrollY
+
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY
+  if (scrollY > prevScrollY && scrollY > 120) {
+    animate(headerEl, { y: -110 }, { duration: 0.35, easing: ease })
+  } else {
+    animate(headerEl, { y: 0 }, { duration: 0.35, easing: ease })
+  }
+  prevScrollY = scrollY
+}, { passive: true })
+
+// ─── 2. HERO: entrance animations on page load ─────────────────────────────
+animate('.hero-img',
+  { opacity: [0, 1], scale: [0.96, 1] },
+  { duration: 0.8, easing: ease }
+)
+animate('.hero-title',
+  { opacity: [0, 1], y: [32, 0] },
+  { duration: 0.6, delay: 0.15, easing: ease }
+)
+animate('.hero-desc',
+  { opacity: [0, 1], y: [24, 0] },
+  { duration: 0.6, delay: 0.3, easing: ease }
+)
+animate('.hero .btn-solid',
+  { opacity: [0, 1], y: [20, 0] },
+  { duration: 0.5, delay: 0.45, easing: ease }
+)
+
+// ─── 3. SCROLL ANIMATIONS via IntersectionObserver ─────────────────────────
+// framer-motion v12's inView() does not accept CSS selectors — use native IO.
+
+// Set initial hidden state for all scroll-animated elements
+;[
+  '.ps-label', '.ps-sublabel',
+  '.sticky',
+  '.features-title', '.fcard',
+  '.sec-title', '.sec-desc', '.step-card',
+  '.faq-item',
+  '.cta-title', '.cta-desc', '.cta-form-wrap'
+].forEach(sel => {
+  document.querySelectorAll(sel).forEach(el => {
+    el.style.opacity = '0'
+    el.style.transform = 'translateY(20px)'
+  })
+})
+
+// Helper: observe a trigger element once, run callback when it enters viewport
+function onInView(triggerEl, callback, { margin = '0px 0px -60px 0px' } = {}) {
+  if (!triggerEl) return
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        callback(entry.target)
+        io.unobserve(entry.target)
+      }
+    })
+  }, { rootMargin: margin, threshold: 0 })
+  io.observe(triggerEl)
+}
+
+// Problem / Solution
+onInView(document.querySelector('.ps-headers'), target => {
+  animate(
+    target.querySelectorAll('.ps-label, .ps-sublabel'),
+    { opacity: 1, y: 0 },
+    { delay: stagger(0.1), duration: 0.55, easing: ease }
+  )
+})
+
+onInView(document.querySelector('.ps-cards-row'), target => {
+  animate(
+    target.querySelectorAll('.sticky'),
+    { opacity: 1, y: 0 },
+    { delay: stagger(0.06), duration: 0.45, easing: ease }
+  )
+})
+
+// Features
+onInView(document.querySelector('.features-title'), target => {
+  animate(target, { opacity: 1, y: 0 }, { duration: 0.5, easing: ease })
+})
+onInView(document.querySelector('.features-grid'), target => {
+  animate(
+    target.querySelectorAll('.fcard'),
+    { opacity: 1, y: 0 },
+    { delay: stagger(0.1), duration: 0.5, easing: ease }
+  )
+})
+
+// How it works
+onInView(document.querySelector('.hiw-copy'), target => {
+  animate(
+    target.querySelectorAll('.sec-title, .sec-desc'),
+    { opacity: 1, y: 0 },
+    { delay: stagger(0.1), duration: 0.5, easing: ease }
+  )
+})
+onInView(document.querySelector('.hiw-steps-row'), target => {
+  animate(
+    target.querySelectorAll('.step-card'),
+    { opacity: 1, y: 0 },
+    { delay: stagger(0.09), duration: 0.45, easing: ease }
+  )
+})
+
+// FAQ
+onInView(document.querySelector('.faq'), target => {
+  animate(
+    target.querySelectorAll('.faq-item'),
+    { opacity: 1, y: 0 },
+    { delay: stagger(0.08), duration: 0.4, easing: ease }
+  )
+})
+
+// CTA
+onInView(document.querySelector('.cta'), target => {
+  animate(
+    target.querySelectorAll('.cta-title, .cta-desc'),
+    { opacity: 1, y: 0 },
+    { delay: stagger(0.12), duration: 0.6, easing: ease }
+  )
+  animate(
+    target.querySelector('.cta-form-wrap'),
+    { opacity: 1, y: 0 },
+    { duration: 0.5, delay: 0.32, easing: ease }
+  )
+})
+</script>
+</body>
+</html>
